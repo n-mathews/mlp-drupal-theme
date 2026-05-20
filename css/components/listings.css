@@ -4,13 +4,30 @@
 
 /* ── Grid ──────────────────────────────────────────────── */
 .homes-for-sale .item-list ul,
-.listing-grid {
+.listing-grid,
+.listings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-8);
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+@media (max-width: 900px) {
+  .homes-for-sale .item-list ul,
+  .listing-grid,
+  .listings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .homes-for-sale .item-list ul,
+  .listing-grid,
+  .listings-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .homes-for-sale .item-list ul li {
@@ -306,4 +323,103 @@
 
 .listing-detail__back a:hover {
   text-decoration: underline;
+}
+
+/* ── Listing detail updates ────────────────────────────── */
+.listing-detail__section-heading {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 400;
+  color: var(--clr-slate);
+  margin: 0 0 var(--space-4);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--clr-border);
+}
+
+.listing-detail__gallery-img {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.listing-detail__gallery-img:hover {
+  opacity: 0.85;
+}
+
+/* ── Lightbox ──────────────────────────────────────────── */
+.listing-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.listing-lightbox.is-open {
+  display: flex;
+}
+
+.listing-lightbox__img-wrap {
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listing-lightbox__img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+}
+
+.listing-lightbox__close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-6);
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2.5rem;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.listing-lightbox__close:hover { opacity: 1; }
+
+.listing-lightbox__prev,
+.listing-lightbox__next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  font-size: 2.5rem;
+  cursor: pointer;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  opacity: 0.8;
+  transition: opacity 0.15s, background 0.15s;
+  line-height: 1;
+}
+
+.listing-lightbox__prev { left: var(--space-4); }
+.listing-lightbox__next { right: var(--space-4); }
+.listing-lightbox__prev:hover,
+.listing-lightbox__next:hover {
+  opacity: 1;
+  background: rgba(255,255,255,0.25);
+}
+
+.listing-lightbox__counter {
+  color: rgba(255,255,255,0.7);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  margin-top: var(--space-3);
 }

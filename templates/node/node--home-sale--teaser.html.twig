@@ -64,18 +64,6 @@
     {% if node.field_home_price.value %}
       <p class="listing-card__price">${{ node.field_home_price.value|number_format(0, '.', ',') }}</p>
     {% endif %}
-
-    {% if node.field_sale_contact_name.value or node.field_sale_contact_number.value %}
-      <div class="listing-card__contact">
-        <span class="listing-card__contact-label">{{ 'Contact'|t }}:</span>
-        {% if node.field_sale_contact_name.value %}
-          <span>{{ node.field_sale_contact_name.value }}</span>
-        {% endif %}
-        {% if node.field_sale_contact_number.value %}
-          <a href="tel:{{ node.field_sale_contact_number.value|replace({' ': '', '(': '', ')': '', '-': ''}) }}">{{ node.field_sale_contact_number.value }}</a>
-        {% endif %}
-      </div>
-    {% endif %}
   </div>
 
 </article>

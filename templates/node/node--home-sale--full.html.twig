@@ -9,64 +9,80 @@
 %}
 <article class="listing-detail">
 
-  {# Gallery #}
+  {# Title and specs #}
+  <div class="listing-detail__header">
+    <div>
+      <h1 class="listing-detail__title">{{ label }}</h1>
+      {% if node.field_listing_address.value %}
+        <p class="listing-detail__address">{{ node.field_listing_address.value }}</p>
+      {% endif %}
+    </div>
+    <div class="listing-detail__header-right">
+      {% if node.field_home_price.value %}
+        <p class="listing-detail__price">${{ node.field_home_price.value|number_format(0, '.', ',') }}</p>
+      {% endif %}
+      {% if status_val == 'sale_pending' %}
+        <span class="listing-card__badge listing-card__badge--inline">{{ 'Sale Pending'|t }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if node.field_listing_bedrooms.value or node.field_listing_bathrooms.value or node.field_listing_sqft.value %}
+    <div class="listing-detail__specs">
+      {% if node.field_listing_bedrooms.value %}
+        <div class="listing-detail__spec">
+          <span class="listing-detail__spec-val">{{ node.field_listing_bedrooms.value }}</span>
+          <span class="listing-detail__spec-label">{{ 'Bedrooms'|t }}</span>
+        </div>
+      {% endif %}
+      {% if node.field_listing_bathrooms.value %}
+        <div class="listing-detail__spec">
+          <span class="listing-detail__spec-val">{{ node.field_listing_bathrooms.value }}</span>
+          <span class="listing-detail__spec-label">{{ 'Bathrooms'|t }}</span>
+        </div>
+      {% endif %}
+      {% if node.field_listing_sqft.value %}
+        <div class="listing-detail__spec">
+          <span class="listing-detail__spec-val">{{ node.field_listing_sqft.value|number_format }}</span>
+          <span class="listing-detail__spec-label">{{ 'Sq Ft'|t }}</span>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {# Gallery with lightbox #}
   {% if node.field_listing_images | length %}
-    <div class="listing-detail__gallery">
+    <div class="listing-detail__gallery" id="listing-gallery">
       {% for image in node.field_listing_images %}
         <div class="listing-detail__gallery-item">
           <img
             src="{{ file_url(image.entity.fileuri) }}"
             alt="{{ image.alt ?: node.label }}"
             loading="{{ loop.index == 1 ? 'eager' : 'lazy' }}"
+            class="listing-detail__gallery-img"
+            data-full="{{ file_url(image.entity.fileuri) }}"
+            data-index="{{ loop.index0 }}"
           >
         </div>
       {% endfor %}
+    </div>
+
+    {# Lightbox #}
+    <div class="listing-lightbox" id="listing-lightbox" aria-hidden="true" role="dialog" aria-label="{{ 'Photo viewer'|t }}">
+      <button class="listing-lightbox__close" id="lightbox-close" aria-label="{{ 'Close'|t }}">&times;</button>
+      <button class="listing-lightbox__prev" id="lightbox-prev" aria-label="{{ 'Previous'|t }}">&#8249;</button>
+      <button class="listing-lightbox__next" id="lightbox-next" aria-label="{{ 'Next'|t }}">&#8250;</button>
+      <div class="listing-lightbox__img-wrap">
+        <img src="" alt="" id="lightbox-img" class="listing-lightbox__img">
+      </div>
+      <p class="listing-lightbox__counter" id="lightbox-counter"></p>
     </div>
   {% endif %}
 
   <div class="listing-detail__body">
 
-    <div class="listing-detail__header">
-      <div>
-        <h1 class="listing-detail__title">{{ label }}</h1>
-        {% if node.field_listing_address.value %}
-          <p class="listing-detail__address">{{ node.field_listing_address.value }}</p>
-        {% endif %}
-      </div>
-      <div class="listing-detail__header-right">
-        {% if node.field_home_price.value %}
-          <p class="listing-detail__price">${{ node.field_home_price.value|number_format(0, '.', ',') }}</p>
-        {% endif %}
-        {% if status_val == 'sale_pending' %}
-          <span class="listing-card__badge listing-card__badge--inline">{{ 'Sale Pending'|t }}</span>
-        {% endif %}
-      </div>
-    </div>
-
-    {% if node.field_listing_bedrooms.value or node.field_listing_bathrooms.value or node.field_listing_sqft.value %}
-      <div class="listing-detail__specs">
-        {% if node.field_listing_bedrooms.value %}
-          <div class="listing-detail__spec">
-            <span class="listing-detail__spec-val">{{ node.field_listing_bedrooms.value }}</span>
-            <span class="listing-detail__spec-label">{{ 'Bedrooms'|t }}</span>
-          </div>
-        {% endif %}
-        {% if node.field_listing_bathrooms.value %}
-          <div class="listing-detail__spec">
-            <span class="listing-detail__spec-val">{{ node.field_listing_bathrooms.value }}</span>
-            <span class="listing-detail__spec-label">{{ 'Bathrooms'|t }}</span>
-          </div>
-        {% endif %}
-        {% if node.field_listing_sqft.value %}
-          <div class="listing-detail__spec">
-            <span class="listing-detail__spec-val">{{ node.field_listing_sqft.value|number_format }}</span>
-            <span class="listing-detail__spec-label">{{ 'Sq Ft'|t }}</span>
-          </div>
-        {% endif %}
-      </div>
-    {% endif %}
-
     {% if node.field_home_description.value %}
+      <h2 class="listing-detail__section-heading">{{ 'Listing Details'|t }}</h2>
       <div class="listing-detail__description">
         {{ node.field_home_description.value|raw }}
       </div>
@@ -94,3 +110,48 @@
   </div>
 
 </article>
+
+{# Lightbox JavaScript #}
+<script>
+(function() {
+  const gallery = document.getElementById('listing-gallery');
+  if (!gallery) return;
+
+  const imgs = Array.from(gallery.querySelectorAll('.listing-detail__gallery-img'));
+  const lightbox = document.getElementById('listing-lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+  const lbCounter = document.getElementById('lightbox-counter');
+  let current = 0;
+
+  function open(index) {
+    current = index;
+    lbImg.src = imgs[current].dataset.full;
+    lbImg.alt = imgs[current].alt;
+    lbCounter.textContent = (current + 1) + ' / ' + imgs.length;
+    lightbox.classList.add('is-open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    lightbox.classList.remove('is-open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  function prev() { open(current === 0 ? imgs.length - 1 : current - 1); }
+  function next() { open(current === imgs.length - 1 ? 0 : current + 1); }
+
+  imgs.forEach((img, i) => img.addEventListener('click', () => open(i)));
+  document.getElementById('lightbox-close').addEventListener('click', close);
+  document.getElementById('lightbox-prev').addEventListener('click', prev);
+  document.getElementById('lightbox-next').addEventListener('click', next);
+  lightbox.addEventListener('click', function(e) { if (e.target === lightbox) close(); });
+  document.addEventListener('keydown', function(e) {
+    if (!lightbox.classList.contains('is-open')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'ArrowRight') next();
+  });
+})();
+</script>
