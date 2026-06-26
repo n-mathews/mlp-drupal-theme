@@ -1,0 +1,84 @@
+{#
+/**
+ * @file user.html.twig
+ * Meadow Lane Park — member profile display.
+ *
+ * Variables:
+ *   - user: The user entity (Drupal\user\UserInterface).
+ *   - content: Rendered fields from the Default view display.
+ *   - name: The user's display name.
+ *   - url: Canonical URL for this user.
+ *   - is_own_profile: TRUE when the viewing user is viewing their own profile.
+ *   - is_admin: TRUE when the viewing user has admin rights.
+ */
+#}
+{% set role_labels = {
+  'board_member':    'Board Member'|t,
+  'history_manager': 'History Manager'|t,
+  'document_manager':'Document Manager'|t,
+  'events_manager':  'Events Manager'|t,
+  'sales_manager':   'Sales Manager'|t,
+  'member':          'Member'|t,
+} %}
+
+{% set display_roles = [] %}
+{% for role in user.roles %}
+  {% if role.id not in ['authenticated', 'anonymous'] and role_labels[role.id] is defined %}
+    {% set display_roles = display_roles|merge([role_labels[role.id]]) %}
+  {% endif %}
+{% endfor %}
+
+<div class="member-profile">
+
+  {# ── Avatar + name ──────────────────────────────────────── #}
+  <div class="member-profile__header">
+    <div class="member-profile__avatar" aria-hidden="true">
+      {{ name|first|upper }}
+    </div>
+    <div class="member-profile__meta">
+      <h2 class="member-profile__name">{{ name }}</h2>
+      <p class="member-profile__role">
+        {{ display_roles ? display_roles|join(', ') : 'Community Member'|t }}
+      </p>
+    </div>
+  </div>
+
+  {# ── Core fields ─────────────────────────────────────────── #}
+  <dl class="member-profile__fields">
+
+    <div class="member-profile__field">
+      <dt class="member-profile__label">{{ 'Email'|t }}</dt>
+      <dd class="member-profile__value">
+        <a href="mailto:{{ user.mail.value }}">{{ user.mail.value }}</a>
+      </dd>
+    </div>
+
+    <div class="member-profile__field">
+      <dt class="member-profile__label">{{ 'Username'|t }}</dt>
+      <dd class="member-profile__value">{{ user.name.value }}</dd>
+    </div>
+
+    <div class="member-profile__field">
+      <dt class="member-profile__label">{{ 'Member since'|t }}</dt>
+      <dd class="member-profile__value">{{ user.created.value|format_date('custom', 'F j, Y') }}</dd>
+    </div>
+
+  </dl>
+
+  {# ── Any custom fields configured on the view display ───── #}
+  {% if content %}
+    <div class="member-profile__extra">
+      {{ content }}
+    </div>
+  {% endif %}
+
+  {# ── Actions ─────────────────────────────────────────────── #}
+  {% if is_own_profile or is_admin %}
+    <div class="member-profile__actions">
+      <a href="{{ path('entity.user.edit_form', {'user': user.id}) }}" class="member-profile__edit-btn">
+        {{ 'Edit profile'|t }}
+      </a>
+    </div>
+  {% endif %}
+
+</div>

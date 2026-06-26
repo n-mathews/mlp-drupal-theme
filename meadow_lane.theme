@@ -40,7 +40,6 @@ function meadow_lane_preprocess_page(array &$variables): void {
   $variables['footer_tagline'] = theme_get_setting('footer_tagline') ?? 'A seasonal, resident-owned community on the St. Lawrence River. Incorporated 2018.';
   $variables['social_facebook']= theme_get_setting('social_facebook')?? '';
   $variables['show_member_login'] = theme_get_setting('show_member_login') ?? TRUE;
-  $variables['member_login_url'] = theme_get_setting('member_login_url') ?? 'https://app.easyhoa.com';
   $variables['google_maps_api_key']   = theme_get_setting('google_maps_api_key') ?? '';
   $variables['google_photos_url']     = theme_get_setting('google_photos_url') ?? '';
   $variables['google_photos_join_url'] = theme_get_setting('google_photos_join_url') ?? '';
@@ -141,6 +140,16 @@ function meadow_lane_preprocess_menu(array &$variables): void {
 }
 
 /**
+ * Implements hook_preprocess_HOOK() for user.html.twig.
+ * Exposes whether the viewing user is looking at their own profile.
+ */
+function meadow_lane_preprocess_user(array &$variables): void {
+  $current_uid = \Drupal::currentUser()->id();
+  $variables['current_uid']    = $current_uid;
+  $variables['is_own_profile'] = ($variables['user']->id() == $current_uid);
+}
+
+/**
  * Implements hook_theme_suggestions_HOOK_alter() for page templates.
  * Adds suggestions based on the current path alias so that templates like
  * page--about.html.twig, page--contact.html.twig etc. are picked up
@@ -189,6 +198,12 @@ function meadow_lane_theme_suggestions_page_alter(array &$suggestions, array $va
   // User account edit page.
   if (preg_match('#^user/\d+/edit#', $alias)) {
     $suggestions[] = 'page__user__edit';
+  }
+
+  // User profile view — uses the member portal layout.
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  if ($route_name === 'entity.user.canonical') {
+    $suggestions[] = 'page__user_profile';
   }
 
 }
