@@ -80,14 +80,6 @@ function meadow_lane_form_system_theme_settings_alter(array &$form, FormStateInt
   ];
 
   // Member area settings.
-  $form['meadow_lane_settings']['member_login_url'] = [
-    '#type'          => 'url',
-    '#title'         => t('Member login URL'),
-    '#default_value' => theme_get_setting('member_login_url') ?? 'https://app.easyhoa.com',
-    '#description'   => t('Where the Member Login button points. Use an external URL (e.g. https://app.easyhoa.com) until the on-site member area is ready, then change to /member.'),
-    '#placeholder'   => 'https://app.easyhoa.com',
-  ];
-
   $form['meadow_lane_settings']['show_member_login'] = [
     '#type'          => 'checkbox',
     '#title'         => t('Show "Member Login" button in navigation'),

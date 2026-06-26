@@ -71,10 +71,14 @@
         </li>
       {% endif %}
 
-{# Member Login CTA #}
+{# Member Login / Portal CTA #}
       {% if show_member_login %}
         <li class="nav__menu-item">
-          <a href="{{ member_login_url|default('https://app.easyhoa.com') }}" class="nav__member-btn"{% if member_login_url starts with 'http' %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ 'Member Login'|t }}</a>
+          {% if logged_in %}
+            <a href="{{ path('mlp_members.portal') }}" class="nav__member-btn">{{ 'Member Portal'|t }}</a>
+          {% else %}
+            <a href="{{ path('user.login') }}" class="nav__member-btn">{{ 'Member Login'|t }}</a>
+          {% endif %}
         </li>
       {% endif %}
 
