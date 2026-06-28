@@ -1,6 +1,27 @@
 {#
 /**
  * @file simplenews-newsletter-body.html.twig
- * Suppress default output — body is set directly via hook_mailer_message_alter.
+ * Meadow Lane Park — newsletter body.
+ * Uses the node body field directly, suppressing the default title and build.
  */
 #}
+{% if node.body.value %}
+  {{ node.body.value|raw }}
+{% else %}
+  {{ build }}
+{% endif %}
+{% if format == 'html' %}
+  {% if reason or unsubscribe_text %}
+    <p style="font-family:system-ui,-apple-system,sans-serif;font-size:11px;color:#aab8b2;text-align:center;margin-top:16px;">
+      {{ reason }}
+      {% if unsubscribe_text %}
+        <a href="[simplenews-subscriber:unsubscribe-url]" style="color:#4A7C6F;">{{ unsubscribe_text }}</a>
+      {% endif %}
+    </p>
+  {% endif %}
+{% else %}
+  {{ reason }}
+  {% if unsubscribe_text %}
+    -- {{ unsubscribe_text }} : [simplenews-subscriber:unsubscribe-url]
+  {% endif %}
+{% endif %}
